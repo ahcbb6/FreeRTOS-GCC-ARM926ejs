@@ -55,7 +55,7 @@ PORT_COMP_TARG = GCC/ARM926EJ-S/
 OBJDIR = obj/
 
 # FreeRTOS source base directory
-FREERTOS_SRC = ../FreeRTOSv10.0.0/FreeRTOS/Source/
+FREERTOS_SRC = ../freertos/lib/FreeRTOS/
 
 # Directory with memory management source files
 FREERTOS_MEMMANG_SRC = $(FREERTOS_SRC)portable/MemMang/
@@ -106,13 +106,14 @@ ELF_IMAGE = image.elf
 TARGET = image.bin
 
 # Include paths to be passed to $(CC) where necessary
-INC_FREERTOS = $(FREERTOS_SRC)include/
+INC_FREERTOS = ../freertos/lib/include/
+INC_FREERTOS_PRIVATE = ../freertos/lib/include/private/
 INC_DRIVERS = $(DRIVERS_SRC)include/
 INC_TOOLCHAIN = ../recipe-sysroot/usr/include/
 
 # Complete include flags to be passed to $(CC) where necessary
-INC_FLAGS = $(INCLUDEFLAG)$(INC_TOOLCHAIN) $(INCLUDEFLAG)$(INC_FREERTOS) $(INCLUDEFLAG)$(APP_SRC) $(INCLUDEFLAG)$(FREERTOS_PORT_SRC)
-INC_FLAG_DRIVERS = $(INCLUDEFLAG)$(INC_TOOLCHAIN) $(INCLUDEFLAG)$(INC_DRIVERS)
+INC_FLAGS = $(INCLUDEFLAG)$(INC_TOOLCHAIN) $(INCLUDEFLAG)$(INC_FREERTOS) $(INCLUDEFLAG)$(INC_FREERTOS_PRIVATE) $(INCLUDEFLAG)$(APP_SRC) $(INCLUDEFLAG)$(FREERTOS_PORT_SRC)
+INC_FLAG_DRIVERS = $(INCLUDEFLAG)$(INC_TOOLCHAIN) $(INCLUDEFLAG)$(INC_DRIVERS) $(INCLUDEFLAG)$(INC_FREERTOS) $(INCLUDEFLAG)$(INC_FREERTOS_PRIVATE)
 
 # Dependency on HW specific settings
 DEP_BSP = $(INC_DRIVERS)bsp.h
