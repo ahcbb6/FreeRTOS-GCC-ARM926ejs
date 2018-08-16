@@ -28,7 +28,7 @@
 # as a build tool. See comments in "setenv.sh" for more details about
 # downloading it and setting the appropriate environment variables.
 
-TOOLCHAIN = arm-none-eabi-
+TOOLCHAIN = arm-oe-eabi-
 CC = $(TOOLCHAIN)gcc
 CXX = $(TOOLCHAIN)g++
 AS = $(TOOLCHAIN)as
@@ -55,7 +55,7 @@ PORT_COMP_TARG = GCC/ARM926EJ-S/
 OBJDIR = obj/
 
 # FreeRTOS source base directory
-FREERTOS_SRC = FreeRTOS/Source/
+FREERTOS_SRC = ../FreeRTOSv10.0.0/FreeRTOS/Source/
 
 # Directory with memory management source files
 FREERTOS_MEMMANG_SRC = $(FREERTOS_SRC)portable/MemMang/
@@ -67,7 +67,7 @@ FREERTOS_PORT_SRC = $(FREERTOS_SRC)portable/$(PORT_COMP_TARG)
 DRIVERS_SRC = drivers/
 
 # Directory with demo specific source (and header) files
-APP_SRC = Demo/
+APP_SRC = ../app/Demo/
 
 
 # Object files to be linked into an application
@@ -101,17 +101,18 @@ APP_OBJS += nostdlib.o
 OBJS = $(addprefix $(OBJDIR), $(STARTUP_OBJ) $(FREERTOS_OBJS) $(FREERTOS_MEMMANG_OBJS) $(FREERTOS_PORT_OBJS) $(DRIVERS_OBJS) $(APP_OBJS))
 
 # Definition of the linker script and final targets
-LINKER_SCRIPT = $(addprefix $(APP_SRC), qemu.ld)
+LINKER_SCRIPT = qemu.ld
 ELF_IMAGE = image.elf
 TARGET = image.bin
 
 # Include paths to be passed to $(CC) where necessary
 INC_FREERTOS = $(FREERTOS_SRC)include/
 INC_DRIVERS = $(DRIVERS_SRC)include/
+INC_TOOLCHAIN = ../recipe-sysroot/usr/include/
 
 # Complete include flags to be passed to $(CC) where necessary
-INC_FLAGS = $(INCLUDEFLAG)$(INC_FREERTOS) $(INCLUDEFLAG)$(APP_SRC) $(INCLUDEFLAG)$(FREERTOS_PORT_SRC)
-INC_FLAG_DRIVERS = $(INCLUDEFLAG)$(INC_DRIVERS)
+INC_FLAGS = $(INCLUDEFLAG)$(INC_TOOLCHAIN) $(INCLUDEFLAG)$(INC_FREERTOS) $(INCLUDEFLAG)$(APP_SRC) $(INCLUDEFLAG)$(FREERTOS_PORT_SRC)
+INC_FLAG_DRIVERS = $(INCLUDEFLAG)$(INC_TOOLCHAIN) $(INCLUDEFLAG)$(INC_DRIVERS)
 
 # Dependency on HW specific settings
 DEP_BSP = $(INC_DRIVERS)bsp.h
