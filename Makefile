@@ -21,41 +21,21 @@
 
 #
 # Type "make help" for more details.
-#
-
-
-# Version "6-2017-q2-update" of the "GNU Arm Embedded Toolchain" is used
-# as a build tool. See comments in "setenv.sh" for more details about
-# downloading it and setting the appropriate environment variables.
-
-TOOLCHAIN = arm-oe-eabi-
-CC = $(TOOLCHAIN)gcc
-CXX = $(TOOLCHAIN)g++
-AS = $(TOOLCHAIN)as
-LD = $(TOOLCHAIN)ld
-OBJCOPY = $(TOOLCHAIN)objcopy
-AR = $(TOOLCHAIN)ar
 
 # GCC flags
 CFLAG = -c
 OFLAG = -o
 INCLUDEFLAG = -I
-CPUFLAG = -mcpu=arm926ej-s
-WFLAG = -Wall -Wextra -Werror
-CFLAGS = $(CPUFLAG) $(WFLAG)
 
 # Additional C compiler flags to produce debugging symbols
 DEB_FLAG = -g -DDEBUG
 
 
 # Compiler/target path in FreeRTOS/Source/portable
-PORT_COMP_TARG = GCC/ARM926EJ-S/
+PORT_COMP_TARG = GCC/$(PORT)/
 
 # Intermediate directory for all *.o and other files:
 OBJDIR = obj/
-
-# FreeRTOS source base directory
-FREERTOS_SRC = ../freertos/lib/FreeRTOS/
 
 # Directory with memory management source files
 FREERTOS_MEMMANG_SRC = $(FREERTOS_SRC)portable/MemMang/
@@ -105,18 +85,12 @@ LINKER_SCRIPT = qemu.ld
 ELF_IMAGE = image.elf
 TARGET = image.bin
 
-# Include paths to be passed to $(CC) where necessary
-INC_FREERTOS = ../freertos/lib/include/
-INC_FREERTOS_PRIVATE = ../freertos/lib/include/private/
-INC_DRIVERS = $(DRIVERS_SRC)include/
-INC_TOOLCHAIN = ../recipe-sysroot/usr/include/
 
 # Complete include flags to be passed to $(CC) where necessary
-INC_FLAGS = $(INCLUDEFLAG)$(INC_TOOLCHAIN) $(INCLUDEFLAG)$(INC_FREERTOS) $(INCLUDEFLAG)$(INC_FREERTOS_PRIVATE) $(INCLUDEFLAG)$(APP_SRC) $(INCLUDEFLAG)$(FREERTOS_PORT_SRC)
-INC_FLAG_DRIVERS = $(INCLUDEFLAG)$(INC_TOOLCHAIN) $(INCLUDEFLAG)$(INC_DRIVERS) $(INCLUDEFLAG)$(INC_FREERTOS) $(INCLUDEFLAG)$(INC_FREERTOS_PRIVATE)
+INC_FLAGS = $(INCLUDEFLAG)$(FREERTOS_PORT_SRC)  $(INCLUDEFLAG)$(APP_SRC)
 
 # Dependency on HW specific settings
-DEP_BSP = $(INC_DRIVERS)bsp.h
+DEP_BSP = drivers/include/bsp.h
 
 
 #
@@ -150,6 +124,10 @@ $(OBJDIR)startup.o : $(APP_SRC)startup.s
 	$(AS) $(CPUFLAG) $< $(OFLAG) $@
 
 
+$(info CC="$(CC)")
+$(info CFLAGS="$(CFLAGS)")
+$(info FREERTOS_SRC="$(FREERTOS_SRC)")
+$(info FREERTOS_PORT_SRC="$(FREERTOS_PORT_SRC)")
 # FreeRTOS core
 
 $(OBJDIR)queue.o : $(FREERTOS_SRC)queue.c
