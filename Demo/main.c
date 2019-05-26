@@ -62,6 +62,43 @@ static const portCHAR defaultText[] = "<NO TEXT>\r\n";
 static const UBaseType_t defaultDelay = 1000;
 
 
+/* We need a handle for the task that can be woken by a notification */
+TaskHandle_t thandle_woken = NULL;
+
+void vTaskWokenFunction( void *pvParameters ){
+  static uint32_t thread_notification;
+  const portCHAR* taskName;
+  UBaseType_t  delay;
+  paramStruct* params = (paramStruct*) pvParameters;
+
+  taskName = ( NULL==params || NULL==params->text ? defaultText : params->text );
+  delay = ( NULL==params ? defaultDelay : params->delay);
+
+  for( ; ; ){
+    vPrintMsg("Waiting For Notification - Blocked...\n");
+    /* Task will block (without consuming CPU time) until notification is received */
+    thread_notification = ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
+
+    /* We might have unblocked if due to delay time
+     let the user know were unblocked and do further
+    check to see if we received a notification */
+    vPrintMsg("Unblocked\n");
+    if (thread_notification){
+      vPrintMsg("Notification Received\n");
+    }
+
+    /* We cancel this delay to immediately start
+     waiting for another notification */
+    /* vTaskDelay( delay / portTICK_RATE_MS ); */
+  }
+  /*
+   * If the task implementation ever manages to break out of the
+   * infinite loop above, it must be deleted before reaching the
+   * end of the function!
+   */
+  vTaskDelete(NULL);
+}
+
 /* Task function - may be instantiated in multiple tasks */
 void vTaskFunction( void *pvParameters )
 {
@@ -131,10 +168,12 @@ void vPeriodicTaskFunction(void* pvParameters)
 
 
 /* Parameters for two tasks */
-static const paramStruct tParam[2] =
+static const paramStruct tParam[4] =
 {
     (paramStruct) { .text="Task1\r\n", .delay=2000 },
-    (paramStruct) { .text="Periodic task\r\n", .delay=3000 }
+    (paramStruct) { .text="Periodic task 10 secs\r\n", .delay=10000 },
+    (paramStruct) { .text="Periodic task 30 secs\r\n", .delay=30000 },
+    (paramStruct) { .text="Woken task secs\r\n", .delay=50000 }
 };
 
 
@@ -168,7 +207,7 @@ void main(void)
      * When vTaskStartScheduler launches the first task, it will switch
      * to System mode and enable interrupt exceptions.
      */
-    vDirectPrintMsg("= = = T E S T   S T A R T E D = = =\r\n\r\n");
+    vDirectPrintMsg("###### - FreeRTOS sample application -######\r\n\r\n");
 
     /* Init of receiver related tasks: */
     if ( pdFAIL == recvInit(RECV_UART_NR) )
@@ -195,11 +234,22 @@ void main(void)
         FreeRTOS_Error("Could not create task1\r\n");
     }
 
-    if ( pdPASS != xTaskCreate(vPeriodicTaskFunction, "task2", 128, (void*) &tParam[1],
+    if ( pdPASS != xTaskCreate(vTaskWokenFunction, "tasktowake", 128, (void*) &tParam[3],
+                               PRIOR_PERIODIC, &thandle_woken) ){
+        FreeRTOS_Error("Could not create task1\r\n");
+    }
+
+    if ( pdPASS != xTaskCreate(vPeriodicTaskFunction, "ptask2", 128, (void*) &tParam[1],
                                PRIOR_FIX_FREQ_PERIODIC, NULL) )
     {
-        FreeRTOS_Error("Could not create task2\r\n");
+        FreeRTOS_Error("Could not create ptask2\r\n");
     }
+
+    /* if ( pdPASS != xTaskCreate(vPeriodicTaskFunction, "ptask4", 128, (void*) &tParam[2], */
+    /*                            PRIOR_FIX_FREQ_PERIODIC, NULL) ) */
+    /* { */
+    /*     FreeRTOS_Error("Could not create ptask4\r\n"); */
+    /* } */
 
     vDirectPrintMsg("A text may be entered using a keyboard.\r\n");
     vDirectPrintMsg("It will be displayed when 'Enter' is pressed.\r\n\r\n");

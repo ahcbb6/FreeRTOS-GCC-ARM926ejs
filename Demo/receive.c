@@ -40,6 +40,9 @@
 
 #include "print.h"
 
+/* This is declared on main.c, but we need
+the handle to send the notification */
+extern TaskHandle_t thandle_woken;
 
 /* Numeric codes for special keys: */
 
@@ -298,6 +301,10 @@ void recvTask(void* params)
                 buf[bufCntr][bufPos]   = '\0';
                 /* Send the entire string to the print queue */
                 vPrintMsg(buf[bufCntr]);
+
+                /* Once Enter is clicked, send notification to wake up task */
+                xTaskNotifyGive(thandle_woken);
+
                 /* And switch to the next line of the "circular" buffer */
                 ++bufCntr;
                 bufCntr %= RECV_BUFFER_SIZE;
