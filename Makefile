@@ -92,6 +92,10 @@ INC_FLAGS = $(INCLUDEFLAG)$(FREERTOS_PORT_SRC)  $(INCLUDEFLAG)$(APP_SRC)
 # Dependency on HW specific settings
 DEP_BSP = drivers/include/bsp.h
 
+# We need an OBJDIR to be created before any of the targets, doing it through targets might
+# break when using parallel make due to race conditions
+$(shell mkdir -p $(OBJDIR))
+
 
 #
 # Make rules:
