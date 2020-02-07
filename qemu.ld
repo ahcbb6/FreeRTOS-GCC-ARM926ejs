@@ -38,6 +38,14 @@
  */
 
 
+/* Alejandro License
+
+based on the work done on:
+https://github.com/aehs29/baremetal-helloqemu
+
+*/
+
+
 /*
  * Memory region between 0x00000000 and 0x07FFFFFF is reserved for max. 128MB of RAM.
  * See page 4-3 of the DUI0225D.
@@ -59,7 +67,7 @@ SECTIONS
      /* Constants used within this command: */
 
     __ld_Vectors_Size = 16 * 4;   /* Vectors at the very beginning of the memory (rounded up to 16) */
-    __ld_Init_Addr = 0x10000;     /* Qemu starts execution at this address */
+    __ld_Init_Addr = 0x40010000;     /* Qemu starts execution at this address */
     __ld_Svc_Stack_Size = 0x1000; /* Very generous size of the Supervisor mode's stack (4 kB) */
     __ld_Irq_Stack_size = 0x1000; /* Very generous size of the IRQ mode's stack (4 kB) */
     __ld_Ram_size = 128M;         /* Total capacity of RAM */
