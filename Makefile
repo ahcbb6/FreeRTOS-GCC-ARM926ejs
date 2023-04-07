@@ -81,7 +81,7 @@ APP_OBJS += nostdlib.o
 OBJS = $(addprefix $(OBJDIR), $(STARTUP_OBJ) $(FREERTOS_OBJS) $(FREERTOS_MEMMANG_OBJS) $(FREERTOS_PORT_OBJS) $(DRIVERS_OBJS) $(APP_OBJS))
 
 # Definition of the linker script and final targets
-LINKER_SCRIPT = qemu.ld
+LINKER_SCRIPT = $(addprefix $(APP_SRC), qemu.ld)
 ELF_IMAGE = image.elf
 TARGET = image.bin
 
